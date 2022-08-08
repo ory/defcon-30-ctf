@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 
@@ -21,7 +21,7 @@ func (logReporter) ReportError(r *http.Request, code int, err error, args ...int
 	log.Printf("ERROR: %s\n  Request: %v\n  Response Code: %d\n  Further Info: %v\n", err, r, code, args)
 }
 
-func newHandler(repo repository) http.Handler {
+func NewHandler(repo repository) http.Handler {
 	r := httprouter.New()
 	h := &handler{
 		repo: repo,
@@ -47,25 +47,30 @@ func (h *handler) getResults(w http.ResponseWriter, r *http.Request, _ httproute
 		h.w.WriteError(w, r, err)
 		return
 	}
-	h.w.Write(w, r, results)
+	b, _ := json.Marshal(results)
+	_, _ = w.Write(b)
 }
 
 func (h *handler) submit(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	body, err := ioutil.ReadAll(r.Body)
+	if r.Body == nil {
+		h.w.WriteError(w, r, herodot.ErrBadRequest)
+		return
+	}
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		h.w.WriteError(w, r, err)
+		h.w.WriteError(w, r, herodot.ErrBadRequest)
 		return
 	}
 
 	result := &result{}
 	if err = json.Unmarshal(body, result); err != nil {
-		h.w.WriteError(w, r, err)
+		h.w.WriteError(w, r, herodot.ErrBadRequest)
 		return
 	}
 
 	err = h.repo.Submit(r.Context(), result)
 	if err != nil {
-		h.w.WriteError(w, r, err)
+		h.w.WriteError(w, r, herodot.ErrBadRequest)
 		return
 	}
 	h.w.WriteCreated(w, r, "/results", "")

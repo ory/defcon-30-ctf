@@ -13,14 +13,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	repo, err := newRepo(config)
+	repo, err := NewRepo(config)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	server := graceful.WithDefaults(&http.Server{
 		Addr:    config.ListenAddress,
-		Handler: newHandler(repo),
+		Handler: NewHandler(repo),
 	})
 
 	if err := graceful.Graceful(func() error {

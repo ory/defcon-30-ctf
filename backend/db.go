@@ -14,7 +14,7 @@ type (
 	}
 )
 
-func newRepo(c *config) (*sqliteRepo, error) {
+func NewRepo(c *Config) (*sqliteRepo, error) {
 	db, err := sql.Open("sqlite3", c.DataSourceName)
 	if err != nil {
 		return nil, err
@@ -39,7 +39,8 @@ func (repo *sqliteRepo) createTables() error {
 }
 
 func (repo *sqliteRepo) List(ctx context.Context) (res []*result, err error) {
-	row, err := repo.db.QueryContext(ctx, `SELECT * FROM results`)
+	res = make([]*result, 0)
+	row, err := repo.db.QueryContext(ctx, `SELECT * FROM results ORDER BY district_id`)
 	if err != nil {
 		return res, err
 	}
@@ -68,7 +69,7 @@ func (repo *sqliteRepo) Submit(ctx context.Context, r *result) error {
 		return err
 	}
 	_, err = repo.db.ExecContext(ctx,
-		"INSERT INTO results(district_id, votes) VALUES (?, ?)",
+		"INSERT INTO results(district_id, votes) VALUES (?, JSON(?))",
 		r.DistrictID, rawVotes,
 	)
 	return err
