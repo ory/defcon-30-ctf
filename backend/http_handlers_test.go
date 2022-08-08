@@ -13,7 +13,7 @@ import (
 func testHandlers(t *testing.T) http.Handler {
 	t.Helper()
 	repo, err := NewRepo(&Config{
-		DataSourceName: "file::memory:?cache=shared",
+		DataSourceName: ":memory:",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -39,6 +39,7 @@ func submit(t *testing.T, handler http.HandlerFunc, r *result) *httptest.Respons
 }
 
 func TestSubmitAndGet(t *testing.T) {
+	t.Parallel()
 	api := testHandlers(t).ServeHTTP
 
 	assert.HTTPBodyContains(t, api, "GET", "/results", nil, "[]")
@@ -70,6 +71,7 @@ func TestSubmitAndGet(t *testing.T) {
 }
 
 func TestSubmitUniqueDistrictIDs(t *testing.T) {
+	t.Parallel()
 	api := testHandlers(t).ServeHTTP
 
 	res := submit(t, api, &result{DistrictID: 123})
