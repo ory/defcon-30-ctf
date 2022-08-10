@@ -1,4 +1,4 @@
-module github.com/ory/defcon-30-ctf
+module github.com/ory/defcon-30-ctf/backend
 
 go 1.18
 

@@ -1,0 +1,87 @@
+[
+  {
+    "id": "public",
+    "upstream": {
+      "url": "http://backend:8000"
+    },
+    "match": {
+      "url": "http://localhost:8080/<login|register|(self-service/.*)>",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    "authenticators": [
+      {
+        "handler": "noop"
+      }
+    ],
+    "authorizer": {
+      "handler": "allow"
+    },
+    "mutators": [
+      {
+        "handler": "noop"
+      }
+    ]
+  },
+  {
+    "id": "auth-only",
+    "upstream": {
+      "url": "http://backend:8000"
+    },
+    "match": {
+      "url": "http://localhost:8080</|>",
+      "methods": [
+        "GET"
+      ]
+    },
+    "authenticators": [
+      {
+        "handler": "cookie_session"
+      }
+    ],
+    "authorizer": {
+      "handler": "allow"
+    },
+    "mutators": [
+      {
+        "handler": "noop"
+      }
+    ],
+    "errors": [
+      {
+        "handler": "redirect"
+      }
+    ]
+  },
+  {
+    "id": "submit-result",
+    "upstream": {
+      "url": "http://backend:8000"
+    },
+    "match": {
+      "url": "http://localhost:8080/result/<[a-zA-Z0-9]+>",
+      "methods": [
+        "POST"
+      ]
+    },
+    "authenticators": [
+      {
+        "handler": "cookie_session"
+      }
+    ],
+    "authorizer": {
+      "handler": "remote_json",
+      "config": {
+        "remote": "http://keto:4466/relation-tuples/check",
+        "payload": "{\"subject_id\": \"{{ print .Subject }}\", \"relation\": \"submit\", \"namespace\": \"locations\", \"object\": \"{{ printIndex .MatchContext.RegexpCaptureGroups 0 }}\"}"
+      }
+    },
+    "mutators": [
+      {
+        "handler": "noop"
+      }
+    ]
+  }
+]

@@ -1,0 +1,20 @@
+version: v0.10.1
+
+dsn: ""
+
+serve:
+  public:
+    base_url: 'http://localhost:8080'
+
+selfservice:
+  default_browser_return_url: '/dashboard'
+
+courier:
+  smtp:
+    connection_uri: 'smtp://localhost:25'
+
+identity:
+  default_schema_id: default
+  schemas:
+    - id: default
+      url: file:///home/ory/identity.schema.json

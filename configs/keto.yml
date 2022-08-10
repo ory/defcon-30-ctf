@@ -1,0 +1,5 @@
+dsn: ""
+
+namespaces:
+  - name: locations
+    id: 0

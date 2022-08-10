@@ -1,0 +1,57 @@
+version: "3.8"
+
+services:
+  keto:
+    image: oryd/keto:v0.9.0-alpha.0
+    entrypoint: sh -c
+    command: '"keto migrate up -y -c /home/ory/keto.yml && keto serve -c /home/ory/keto.yml --sqa-opt-out"'
+    restart: on-failure
+    links:
+      - pg:pg
+    environment:
+      DSN: postgres://dbuser:secret@pg:5432/default?sslmode=disable
+    volumes:
+      - type: bind
+        source: configs
+        target: /home/ory
+
+  kratos:
+    image: oryd/kratos:v0.10.1
+    entrypoint: sh -c
+    command: '"kratos migrate sql up -y -e && kratos serve -c /home/ory/kratos.yml --sqa-opt-out"'
+    restart: on-failure
+    links:
+      - pg:pg
+    environment:
+      DSN: postgres://dbuser:secret@pg:5432/default?sslmode=disable
+    volumes:
+      - type: bind
+        source: configs
+        target: /home/ory
+
+  oathkeeper:
+    image: oryd/oathkeeper:v0.39.0
+    command: serve -c /home/ory/configs/oathkeeper.yml
+    restart: on-failure
+    ports:
+      - "8080:4455"
+    volumes:
+      - type: bind
+        source: configs
+        target: /home/ory/configs
+
+  pg:
+    image: postgres:14
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=default
+
+  backend:
+    build: ./backend
+    links:
+      - pg:pg
+    environment:
+      DSN: postgres://dbuser:secret@pg:5432/default?sslmode=disable

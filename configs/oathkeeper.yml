@@ -1,0 +1,56 @@
+log:
+  level: debug
+
+authenticators:
+  noop:
+    enabled: true
+  cookie_session:
+    enabled: true
+    config:
+      check_session_url: http://kratos:4433/sessions/whoami
+      subject_from: identity.id
+
+authorizers:
+  allow:
+    enabled: true
+  remote_json:
+    enabled: true
+    config:
+      remote: http://unset
+      payload: '{}'
+      forward_response_headers_to_upstream: []
+
+mutators:
+  noop:
+    enabled: true
+
+errors:
+  handlers:
+    redirect:
+      enabled: true
+      config:
+        to: /login
+
+serve:
+  proxy:
+    cors:
+      enabled: true
+      allowed_origins:
+        - http://localhost:8080
+      allowed_methods:
+        - GET
+        - POST
+      allowed_headers:
+        - Cookie
+        - Content-Type
+      exposed_headers:
+        - Content-Type
+        - Link
+      allow_credentials: true
+      max_age: 3600
+      debug: true
+
+access_rules:
+  repositories:
+    - file:///home/ory/configs/oathkeeper_rules.json
+  matching_strategy: regexp
