@@ -7,5 +7,21 @@
 
 <h1>Login to Election Counter</h1>
 
+<code>{{ .Messages }}</code>
+
+<form action="{{ .Action }}" method="post">
+    <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+    <input type="hidden" name="method" value="password">
+    <label>
+        <span>Email</span>
+        <input type="text" name="identifier" placeholder="Email">
+    </label>
+    <label>
+        <span>Password</span>
+        <input type="password" name="password">
+    </label>
+    <button type="submit">Log In</button>
+</form>
+
 </body>
 </html>

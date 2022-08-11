@@ -31,7 +31,7 @@
       "url": "http://kratos:4433"
     },
     "match": {
-      "url": "http://localhost:8080/self-service/<.*>",
+      "url": "http://localhost:8080/<(self-service/.*)|sessions/whoami>",
       "methods": [
         "GET",
         "POST"
