@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"strings"
 
 	_ "github.com/jackc/pgx/v4/stdlib"
@@ -15,7 +14,6 @@ type sqlRepo struct {
 
 func NewRepo(c *Config) (*sqlRepo, error) {
 	driver, dsn, _ := strings.Cut(c.DataSourceName, "://")
-	fmt.Printf("driver: %s, dsn: %s\n", driver, dsn)
 	db, err := sql.Open(driver, dsn)
 	if err != nil {
 		return nil, err
