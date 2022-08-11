@@ -38,7 +38,7 @@ services:
       - keto:keto
       - backend:backend
     ports:
-      - "8080:4455"
+      - "5050:4455"
     volumes:
       - type: bind
         source: configs
