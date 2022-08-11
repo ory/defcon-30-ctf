@@ -4,15 +4,15 @@ dsn: ""
 
 serve:
   public:
-    base_url: 'http://localhost:8080'
+    base_url: 'http://localhost:5050'
 
 selfservice:
   default_browser_return_url: '/'
   flows:
     login:
-      ui_url: http://localhost:8080/login
+      ui_url: http://localhost:5050/login
     registration:
-        ui_url: http://localhost:8080/register
+        ui_url: http://localhost:5050/register
         after:
           password:
             hooks:
