@@ -8,6 +8,11 @@ serve:
 
 selfservice:
   default_browser_return_url: '/dashboard'
+  flows:
+    login:
+      ui_url: http://localhost:8080/login
+    registration:
+        ui_url: http://localhost:8080/register
 
 courier:
   smtp:

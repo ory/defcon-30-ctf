@@ -3,23 +3,24 @@ package main
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
+	"fmt"
+	"strings"
 
-	_ "github.com/mattn/go-sqlite3" // Import go-sqlite3 library
+	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-type (
-	sqliteRepo struct {
-		db *sql.DB
-	}
-)
+type sqlRepo struct {
+	db *sql.DB
+}
 
-func NewRepo(c *Config) (*sqliteRepo, error) {
-	db, err := sql.Open("sqlite3", c.DataSourceName)
+func NewRepo(c *Config) (*sqlRepo, error) {
+	driver, dsn, _ := strings.Cut(c.DataSourceName, "://")
+	fmt.Printf("driver: %s, dsn: %s\n", driver, dsn)
+	db, err := sql.Open(driver, dsn)
 	if err != nil {
 		return nil, err
 	}
-	repo := &sqliteRepo{
+	repo := &sqlRepo{
 		db: db,
 	}
 	if err := repo.createTables(); err != nil {
@@ -28,34 +29,30 @@ func NewRepo(c *Config) (*sqliteRepo, error) {
 	return repo, nil
 }
 
-func (repo *sqliteRepo) createTables() error {
+func (repo *sqlRepo) createTables() error {
 	_, err := repo.db.Exec(`
-		CREATE TABLE results (
-			district_id		integer 	NOT NULL PRIMARY KEY,
-			votes 			text		NOT NULL
+		CREATE TABLE IF NOT EXISTS results (
+			district		text 		NOT NULL PRIMARY KEY,
+			democrats 		integer		NOT NULL,
+			republicans 	integer		NOT NULL,
+			invalid 		integer		NOT NULL
 		);
 	`)
 	return err
 }
 
-func (repo *sqliteRepo) List(ctx context.Context) (res []*result, err error) {
+func (repo *sqlRepo) List(ctx context.Context) (res []*result, err error) {
 	res = make([]*result, 0)
-	row, err := repo.db.QueryContext(ctx, `SELECT * FROM results ORDER BY district_id`)
+	row, err := repo.db.QueryContext(ctx, `SELECT * FROM results ORDER BY district`)
 	if err != nil {
 		return res, err
 	}
 
 	defer row.Close()
 	for row.Next() {
-		var (
-			r        = &result{}
-			rawVotes string
-		)
-		if err := row.Scan(&r.DistrictID, &rawVotes); err != nil {
-			return res, err
-		}
-		if err := json.Unmarshal([]byte(rawVotes), &r.Votes); err != nil {
-			return res, err
+		r := &result{}
+		if err := row.Scan(&r.District, &r.Democrats, &r.Republicans, &r.Invalid); err != nil {
+			return nil, err
 		}
 		res = append(res, r)
 	}
@@ -63,14 +60,9 @@ func (repo *sqliteRepo) List(ctx context.Context) (res []*result, err error) {
 	return res, nil
 }
 
-func (repo *sqliteRepo) Submit(ctx context.Context, r *result) error {
-	rawVotes, err := json.Marshal(r.Votes)
-	if err != nil {
-		return err
-	}
-	_, err = repo.db.ExecContext(ctx,
-		"INSERT INTO results(district_id, votes) VALUES (?, JSON(?))",
-		r.DistrictID, rawVotes,
-	)
+func (repo *sqlRepo) Submit(ctx context.Context, district string, r *result) error {
+	_, err := repo.db.ExecContext(ctx,
+		"INSERT INTO results(district, democrats, republicans, invalid) VALUES (?, ?, ?, ?)",
+		district, r.Democrats, r.Republicans, r.Invalid)
 	return err
 }

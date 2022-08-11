@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,7 +14,7 @@ import (
 func testHandlers(t *testing.T) http.Handler {
 	t.Helper()
 	repo, err := NewRepo(&Config{
-		DataSourceName: ":memory:",
+		DataSourceName: "sqlite3://:memory:",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -25,14 +26,10 @@ func submit(t *testing.T, handler http.HandlerFunc, r *result) *httptest.Respons
 	t.Helper()
 	w := httptest.NewRecorder()
 	bs, err := json.Marshal(r)
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 
-	req, err := http.NewRequest("POST", "/results", bytes.NewBuffer(bs))
-	if err != nil {
-		t.Fatal(err)
-	}
+	req, err := http.NewRequest("POST", "/results/"+r.District, bytes.NewBuffer(bs))
+	require.NoError(t, err)
 
 	handler(w, req)
 	return w
@@ -45,24 +42,20 @@ func TestSubmitAndGet(t *testing.T) {
 	assert.HTTPBodyContains(t, api, "GET", "/results", nil, "[]")
 
 	results := []*result{{
-		DistrictID: 1,
-		Votes: map[string]uint{
-			"party a":    12,
-			"party b":    34,
-			"the answer": 42,
-		},
+		District:    "District 1",
+		Democrats:   1,
+		Republicans: 1,
+		Invalid:     0,
 	}, {
-		DistrictID: 2,
-		Votes: map[string]uint{
-			"party a":    1,
-			"party b":    1,
-			"the answer": 0,
-		},
+		District:    "District 2",
+		Democrats:   2,
+		Republicans: 0,
+		Invalid:     1,
 	}}
 
 	for _, r := range results {
 		res := submit(t, api, r)
-		assert.Equal(t, http.StatusCreated, res.Code)
+		assert.Equal(t, http.StatusCreated, res.Code, "%s", res.Body.String())
 	}
 
 	expected, _ := json.Marshal(results)
@@ -74,9 +67,9 @@ func TestSubmitUniqueDistrictIDs(t *testing.T) {
 	t.Parallel()
 	api := testHandlers(t).ServeHTTP
 
-	res := submit(t, api, &result{DistrictID: 123})
-	assert.Equal(t, http.StatusCreated, res.Code, "first create succeeds")
+	res := submit(t, api, &result{District: "foo"})
+	assert.Equal(t, http.StatusCreated, res.Code, "first creat should succeed: %s", res.Body.String())
 
-	res = submit(t, api, &result{DistrictID: 123})
-	assert.Equal(t, http.StatusBadRequest, res.Code, "second create fails")
+	res = submit(t, api, &result{District: "foo"})
+	assert.Equal(t, http.StatusBadRequest, res.Code, "second create should fail: %s", res.Body.String())
 }

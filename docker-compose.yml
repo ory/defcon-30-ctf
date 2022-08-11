@@ -33,6 +33,10 @@ services:
     image: oryd/oathkeeper:v0.39.0
     command: serve -c /home/ory/configs/oathkeeper.yml
     restart: on-failure
+    links:
+      - kratos:kratos
+      - keto:keto
+      - backend:backend
     ports:
       - "8080:4455"
     volumes:
@@ -51,7 +55,8 @@ services:
 
   backend:
     build: ./backend
+    restart: on-failure
     links:
       - pg:pg
     environment:
-      DSN: postgres://dbuser:secret@pg:5432/default?sslmode=disable
+      DSN: pgx://postgres://dbuser:secret@pg:5432/default?sslmode=disable

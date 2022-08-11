@@ -11,7 +11,7 @@ RUN go mod download
 
 ADD . .
 
-RUN go build -tags sqlite -o /usr/bin/backend .
+RUN go build -o /usr/bin/backend .
 
 FROM alpine:3.16
 

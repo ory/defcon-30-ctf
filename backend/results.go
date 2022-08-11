@@ -6,12 +6,14 @@ import (
 
 type (
 	result struct {
-		DistrictID uint            `json:"district_id"`
-		Votes      map[string]uint `json:"votes"`
+		District    string `json:"district"`
+		Democrats   uint   `json:"democrats"`
+		Republicans uint   `json:"republicans"`
+		Invalid     uint   `json:"invalid"`
 	}
 
 	repository interface {
 		List(ctx context.Context) ([]*result, error)
-		Submit(ctx context.Context, r *result) error
+		Submit(ctx context.Context, district string, r *result) error
 	}
 )

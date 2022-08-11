@@ -17,6 +17,6 @@ func fromEnvOrDefault(key, defaultVal string) string {
 func newConfig() (*Config, error) {
 	return &Config{
 		ListenAddress:  fromEnvOrDefault("LISTEN_ADDRESS", ":8000"),
-		DataSourceName: fromEnvOrDefault("DATA_SOURCE_NAME", "file::memory:?cache=shared"),
+		DataSourceName: fromEnvOrDefault("DSN", "sqlite3://file::memory:?cache=shared"),
 	}, nil
 }

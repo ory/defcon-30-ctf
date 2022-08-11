@@ -1,11 +1,37 @@
 [
   {
-    "id": "public",
+    "id": "public-backend",
     "upstream": {
       "url": "http://backend:8000"
     },
     "match": {
-      "url": "http://localhost:8080/<login|register|(self-service/.*)>",
+      "url": "http://localhost:8080/<login|register>",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    "authenticators": [
+      {
+        "handler": "noop"
+      }
+    ],
+    "authorizer": {
+      "handler": "allow"
+    },
+    "mutators": [
+      {
+        "handler": "noop"
+      }
+    ]
+  },
+  {
+    "id": "public-kratos",
+    "upstream": {
+      "url": "http://kratos:4433"
+    },
+    "match": {
+      "url": "http://localhost:8080/self-service/<.*>",
       "methods": [
         "GET",
         "POST"
