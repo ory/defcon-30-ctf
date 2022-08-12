@@ -95,7 +95,6 @@ func (h *handler) submitFlag(w http.ResponseWriter, r *http.Request, _ httproute
 }
 
 func (h *handler) static(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	fmt.Printf("static: %v\n", r.URL.Path)
 	fsys := fs.FS(staticFiles)
 	statics, err := fs.Sub(fsys, "static")
 	if err != nil {

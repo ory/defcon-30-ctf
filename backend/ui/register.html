@@ -17,37 +17,39 @@
   </head>
   <body>
     <div class="card">
-      <h4 class="card-title">Register to Election Counter</h4>
+      <div class="grid-32">
+        <h4 class="card-title">Register to Election Counter</h4>
 
-      <div class="error-message">{{ .Messages }}</div>
+        <div class="error-message">{{ .Messages }}</div>
 
-      <form action="{{ .Action }}" method="post">
-        <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}" />
-        <input type="hidden" name="method" value="webauthn" />
-        <input type="hidden" name="webauthn_register" value="" />
+        <form action="{{ .Action }}" method="post">
+          <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}" />
+          <input type="hidden" name="method" value="webauthn" />
+          <input type="hidden" name="webauthn_register" value="" />
 
-        <div class="grid-32">
-          <label class="grid-8">
-            <span class="text-field-label">Email</span>
-            <input type="text" name="traits.email" placeholder="Your Email" />
-          </label>
-          <label class="grid-8">
-            <span class="text-field-label">Name</span>
-            <input type="text" name="traits.name" placeholder="Your Name" />
-          </label>
-          <input
-            type="button"
-            name="webauthn_register_trigger"
-            onclick="{{ .WebAuthNCallback }}"
-            value="Register using WebAuthN"
-          />
+          <div class="grid-32">
+            <label class="grid-8">
+              <span class="text-field-label">Email</span>
+              <input type="text" name="traits.email" placeholder="Your Email" />
+            </label>
+            <label class="grid-8">
+              <span class="text-field-label">Name</span>
+              <input type="text" name="traits.name" placeholder="Your Name" />
+            </label>
+            <input
+              type="button"
+              name="webauthn_register_trigger"
+              onclick="{{ .WebAuthNCallback }}"
+              value="Register using WebAuthN"
+            />
+          </div>
+        </form>
+        <div class="typography-alternative">
+          <p>
+            Already have an account? Please
+            <a class="button-link" href="/login">login</a>
+          </p>
         </div>
-      </form>
-      <div class="typography-alternative">
-        <p>
-          Already have an account? Please
-          <a class="button-link" href="/login">login</a>
-        </p>
       </div>
     </div>
     <script type="module" src="static/theming.js"></script>
