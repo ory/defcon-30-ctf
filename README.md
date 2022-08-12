@@ -17,11 +17,3 @@ Once the services are running, you are able to access them at:
 ```
 http://localhost:5050
 ```
-
-## Running Remote
-
-To run the set up on a remote system, use:
-
-```bash
-$ docker compose -f docker-compose.remote.yml up --build -d --force-recreate
-```
