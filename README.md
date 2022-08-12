@@ -20,7 +20,7 @@ The services are all open source:
 - Backend (this repo): the actual election system backend
 - Postgres: the database
 
-The target of this CTF is the **backend** service. Vulnerabilities found in **Oathkeeper**, **Kratos**, and **Keto** can be reported through our [bug bounty program](https://hackerone.com/ory_corp) and give you bounties between 100$ (low) and 3,000$ (critical). On top, we will add **another** 100$ for any submission done during DEF CON 30 after you talked to us personally at the Voting Machine village.
+The target of this CTF is the **backend** service. Vulnerabilities found in the open source **Ory Oathkeeper**, **Ory Kratos**, and **Ory Keto** projects can be reported through our [bug bounty program](https://hackerone.com/ory_corp) and give you bounties between 100$ (low) and 3,000$ (critical). On top, we will add another 100$ for any submission done during DEF CON 30 after you talked to us personally at the Voting Machine village.
 
 ## Out of Scope
 
