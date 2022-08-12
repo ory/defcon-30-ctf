@@ -2,19 +2,18 @@ package main
 
 import (
 	"context"
-	"database/sql"
-	"strings"
-
 	_ "github.com/jackc/pgx/v4/stdlib"
+	"github.com/jmoiron/sqlx"
+	"strings"
 )
 
 type sqlRepo struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
 func NewRepo(c *Config) (*sqlRepo, error) {
 	driver, dsn, _ := strings.Cut(c.DataSourceName, "://")
-	db, err := sql.Open(driver, dsn)
+	db, err := sqlx.Open(driver, dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -34,6 +33,13 @@ func (repo *sqlRepo) createTables() error {
 			democrats 		integer		NOT NULL,
 			republicans 	integer		NOT NULL,
 			invalid 		integer		NOT NULL
+		);
+
+		CREATE TABLE IF NOT EXISTS flags (
+		    "when"			integer 	NOT NULL,
+		    "user"			text 		NOT NULL,
+		    flag 			text 		NOT NULL,
+		    email 			text 		NOT NULL PRIMARY KEY
 		);
 	`)
 	return err
@@ -60,7 +66,14 @@ func (repo *sqlRepo) List(ctx context.Context) (res []*result, err error) {
 
 func (repo *sqlRepo) Submit(ctx context.Context, district string, r *result) error {
 	_, err := repo.db.ExecContext(ctx,
-		"INSERT INTO results(district, democrats, republicans, invalid) VALUES (?, ?, ?, ?)",
+		repo.db.Rebind("INSERT INTO results(district, democrats, republicans, invalid) VALUES (?, ?, ?, ?)"),
 		district, r.Democrats, r.Republicans, r.Invalid)
+	return err
+}
+
+func (repo *sqlRepo) FlagSubmission(ctx context.Context, when, user, flag, email string) error {
+	_, err := repo.db.ExecContext(ctx,
+		repo.db.Rebind("INSERT INTO flags(\"when\", \"user\", flag, email) VALUES (?, ?, ?, ?)"),
+		when, user, flag, email)
 	return err
 }

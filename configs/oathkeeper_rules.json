@@ -5,7 +5,7 @@
       "url": "http://backend:8000"
     },
     "match": {
-      "url": "<(http|https)>://<[a-zA-Z0-9-.]+>/<login|register>",
+      "url": "<(http|https)>://<[a-zA-Z0-9-.]+>/<login|register|error|(static/.*)>",
       "methods": [
         "GET",
         "POST"
@@ -31,7 +31,7 @@
       "url": "http://kratos:4433"
     },
     "match": {
-      "url": "<(http|https)>://<[a-zA-Z0-9-.]+>/<(self-service/.*)|sessions/whoami>",
+      "url": "<(http|https)>://<[a-zA-Z0-9-.]+>/<(self-service/.*)|sessions/whoami|(.well-known/.*)>",
       "methods": [
         "GET",
         "POST"
@@ -57,9 +57,10 @@
       "url": "http://backend:8000"
     },
     "match": {
-      "url": "<(http|https)>://<[a-zA-Z0-9-.]+></|>",
+      "url": "<(http|https)>://<[a-zA-Z0-9-.]+><|/|/results|/grant-access|/flag>",
       "methods": [
-        "GET"
+        "GET",
+        "POST"
       ]
     },
     "authenticators": [
@@ -72,41 +73,12 @@
     },
     "mutators": [
       {
-        "handler": "noop"
+        "handler": "header"
       }
     ],
     "errors": [
       {
         "handler": "redirect"
-      }
-    ]
-  },
-  {
-    "id": "submit-result",
-    "upstream": {
-      "url": "http://backend:8000"
-    },
-    "match": {
-      "url": "<(http|https)>://<[a-zA-Z0-9-.]+>/result/<[a-zA-Z0-9]+>",
-      "methods": [
-        "POST"
-      ]
-    },
-    "authenticators": [
-      {
-        "handler": "cookie_session"
-      }
-    ],
-    "authorizer": {
-      "handler": "remote_json",
-      "config": {
-        "remote": "http://keto:4466/relation-tuples/check",
-        "payload": "{\"subject_id\": \"{{ print .Subject }}\", \"relation\": \"submit\", \"namespace\": \"locations\", \"object\": \"{{ printIndex .MatchContext.RegexpCaptureGroups 0 }}\"}"
-      }
-    },
-    "mutators": [
-      {
-        "handler": "noop"
       }
     ]
   }

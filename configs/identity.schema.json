@@ -10,11 +10,15 @@
           "title": "Email",
           "ory.sh/kratos": {
             "credentials": {
-              "password": {
+              "webauthn": {
                 "identifier": true
               }
             }
           }
+        },
+        "name": {
+            "type": "string",
+            "title": "Name"
         }
       }
     }

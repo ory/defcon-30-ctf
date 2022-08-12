@@ -7,23 +7,26 @@ authenticators:
   cookie_session:
     enabled: true
     config:
+      # TODO cluster-internal mTLS
       check_session_url: http://kratos:4433/sessions/whoami
       preserve_path: true
       subject_from: identity.id
+      extra_from: identity.traits
 
 authorizers:
   allow:
     enabled: true
-  remote_json:
-    enabled: true
-    config:
-      remote: http://unset
-      payload: '{}'
-      forward_response_headers_to_upstream: []
 
 mutators:
   noop:
     enabled: true
+  header:
+    enabled: true
+    config:
+      headers:
+        X-User: "{{ print .Subject }}"
+        X-Username: "{{ print .Extra.name }}"
+        X-Useremail: "{{ print .Extra.email }}"
 
 errors:
   handlers:

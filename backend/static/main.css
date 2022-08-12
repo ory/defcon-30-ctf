@@ -1,0 +1,18 @@
+@import url("style.css");
+
+body {
+  padding-top: 32px;
+  padding-bottom: 32px;
+  margin: auto;
+  min-height: 100vh;
+  min-width: 100vw;
+  background: var(--ory-theme-background-canvas);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+input[type="submit"],
+input[type="text"] {
+  width: 100%;
+}
