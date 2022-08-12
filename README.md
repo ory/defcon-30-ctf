@@ -1,12 +1,18 @@
-# Ory CTF for Def Con 30
+# Capture The Flag // Voting Village // Def Con 30
 
-Welcome to the Ory CTF at DEF CON 30! This is your chance to get some awesome Ory swag and bounty! Head over to the [remote challenge](https://defcon.getory.io/) to get started.
+Welcome to the github.com/ory CTF at DEF CON 30! Explore a vulnerable, open-source digital election system and capture the flag to win a surprise!
+
+Head over to the [remote challenge](https://defcon.getory.io/) to get started:
+
+```
+https://defcon.getory.io/
+```
 
 ## Targets
 
-This challenge consists of five services. They mock a basic election system used by **authenticated** users (election workers) to submit their voting districts results. This is not a service for voters. However, everyone can sign up and see the already submitted results.
+This challenge runs five services. They mock a basic election system used by **authenticated** users (election workers) to submit their voting districts results. This is not a service for voters. However, everyone can sign up and see the already submitted results.
 
-The services are:
+The services are all open source:
 
 - [Ory Oathkeeper](https://github.com/ory/oathkeeper): reverse proxy for all other services
 - [Ory Kratos](https://github.com/ory/kratos): authentication and session management
@@ -20,7 +26,9 @@ The target of this CTF is the **backend** service. Vulnerabilities found in **Oa
 
 We kindly ask you **not to do** denial of service or brute-force attacks against our remote services. Doing so will ruin the fun for everyone.
 
-## Local Installation
+## Local Investigation
+
+Open source also means you can investigate the services locally.
 
 You'll need to have Docker installed and this repository checked out to start the challenge:
 
