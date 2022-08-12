@@ -1,6 +1,6 @@
 # Ory CTF for Def Con 30
 
-Welcome to the Ory CTF at DEF CON 30! This is your chance to get some awesome Ory swag and bounty! Head over to the [remote challenge](https://defcon.ory.dev/) to get started.
+Welcome to the Ory CTF at DEF CON 30! This is your chance to get some awesome Ory swag and bounty! Head over to the [remote challenge](https://defcon.getory.io/) to get started.
 
 ## Targets
 
