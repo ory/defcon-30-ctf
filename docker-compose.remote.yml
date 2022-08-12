@@ -4,7 +4,7 @@ services:
   keto:
     image: oryd/keto:v0.9.0-alpha.0
     entrypoint: sh -c
-    command: '"keto migrate up -y -c /home/ory/keto.yml && keto serve -c /home/ory/keto.yml --sqa-opt-out"'
+    command: '/home/ory/keto_entrypoint.sh'
     restart: on-failure
     links:
       - pg:pg
@@ -18,7 +18,7 @@ services:
   kratos:
     image: oryd/kratos:v0.10.1
     entrypoint: sh -c
-    command: '"kratos migrate sql up -y -e && kratos serve -c /home/ory/kratos.remote.yml --sqa-opt-out"'
+    command: '"kratos migrate sql up -y -e && kratos serve -c /home/ory/kratos.yml --sqa-opt-out"'
     restart: on-failure
     links:
       - pg:pg
@@ -35,7 +35,6 @@ services:
     restart: on-failure
     links:
       - kratos:kratos
-      - keto:keto
       - backend:backend
     ports:
       - "80:4455"
@@ -58,5 +57,6 @@ services:
     restart: on-failure
     links:
       - pg:pg
+      - keto:keto
     environment:
       DSN: pgx://postgres://dbuser:secret@pg:5432/default?sslmode=disable

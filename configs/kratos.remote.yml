@@ -9,14 +9,27 @@ serve:
 selfservice:
   default_browser_return_url: '/'
   flows:
+    error:
+      ui_url: https://defcon-ory-challenge.com/error
     login:
       ui_url: https://defcon-ory-challenge.com/login
     registration:
-        ui_url: https://defcon-ory-challenge.com/register
-        after:
-          password:
-            hooks:
-              - hook: session
+      ui_url: https://defcon-ory-challenge.com/register
+      after:
+        webauthn:
+          hooks:
+            - hook: session
+  methods:
+    password:
+      enabled: false
+    webauthn:
+      enabled: true
+      config:
+        passwordless: true
+        rp:
+          display_name: Ory DEF CON CTF
+          id: localhost
+          origin: https://defcon-ory-challenge.com
 
 courier:
   smtp:
