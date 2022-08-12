@@ -26,20 +26,4 @@ The target of this CTF is the **backend** service. Vulnerabilities found in **Oa
 
 We kindly ask you **not to do** denial of service or brute-force attacks against our remote services. Doing so will ruin the fun for everyone.
 
-## Local Investigation
-
-Open source also means you can investigate the services locally.
-
-You'll need to have Docker installed and this repository checked out to start the challenge:
-
-```bash
-$ git clone https://github.com/ory/defcon-30-ctf.git
-$ cd defcon-30-ctf
-$ docker compose up -d --build --force-recreate
-```
-
-Once the services are running, you are able to access them at:
-
-```
-http://localhost:5050
-```
+For more details head over to the [extended README](README.extended.md).
