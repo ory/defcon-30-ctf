@@ -1,0 +1,2 @@
+export declare const buttonLinkStyle: import("@vanilla-extract/recipes/dist/declarations/src/types").RuntimeFn<import("@vanilla-extract/recipes/dist/declarations/src/types").VariantGroups>;
+//# sourceMappingURL=button-link.css.d.ts.map

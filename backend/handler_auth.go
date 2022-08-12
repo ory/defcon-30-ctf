@@ -3,13 +3,14 @@ package main
 import (
 	_ "embed"
 	"encoding/json"
+	"html/template"
+	"net/http"
+	"os"
+
 	"github.com/julienschmidt/httprouter"
 	"github.com/ory/client-go"
 	"github.com/ory/herodot"
 	rts "github.com/ory/keto/proto/ory/keto/relation_tuples/v1alpha2"
-	"html/template"
-	"net/http"
-	"os"
 )
 
 //go:embed ui/login.html
@@ -116,7 +117,7 @@ func getFlow[F interface {
 	}
 	data.Messages = string(msgRaw)
 	if len(msg) == 0 {
-		data.Messages = "no messages right now"
+		data.Messages = "no error messages right now"
 	}
 	return &data, nil
 }
