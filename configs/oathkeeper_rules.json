@@ -5,7 +5,7 @@
       "url": "http://backend:8000"
     },
     "match": {
-      "url": "http://localhost:5050/<login|register|error|(static/.*)>",
+      "url": "<(http|https)>://<[a-zA-Z0-9-.]+>/<login|register|error|(static/.*)>",
       "methods": [
         "GET",
         "POST"
@@ -31,7 +31,7 @@
       "url": "http://kratos:4433"
     },
     "match": {
-      "url": "http://localhost:5050/<(self-service/.*)|sessions/whoami|(.well-known/.*)>",
+      "url": "<(http|https)>://<[a-zA-Z0-9-.]+>/<(self-service/.*)|sessions/whoami|(.well-known/.*)>",
       "methods": [
         "GET",
         "POST"
@@ -57,7 +57,7 @@
       "url": "http://backend:8000"
     },
     "match": {
-      "url": "http://localhost:5050<|/|/results|/grant-access|/flag>",
+      "url": "<(http|https)>://<[a-zA-Z0-9-.]+><|/|/results|/grant-access|/flag>",
       "methods": [
         "GET",
         "POST"

@@ -41,6 +41,7 @@ serve:
       enabled: true
       allowed_origins:
         - http://localhost:5050
+        - https://defcon-ory-challenge.com
       allowed_methods:
         - GET
         - POST
