@@ -57,9 +57,10 @@
       "url": "http://backend:8000"
     },
     "match": {
-      "url": "http://localhost:5050</|>",
+      "url": "http://localhost:5050<|/|/results|/grant-access|/flag>",
       "methods": [
-        "GET"
+        "GET",
+        "POST"
       ]
     },
     "authenticators": [
@@ -72,41 +73,12 @@
     },
     "mutators": [
       {
-        "handler": "noop"
+        "handler": "header"
       }
     ],
     "errors": [
       {
         "handler": "redirect"
-      }
-    ]
-  },
-  {
-    "id": "submit-result",
-    "upstream": {
-      "url": "http://backend:8000"
-    },
-    "match": {
-      "url": "http://localhost:5050/result/<[a-zA-Z0-9]+>",
-      "methods": [
-        "POST"
-      ]
-    },
-    "authenticators": [
-      {
-        "handler": "cookie_session"
-      }
-    ],
-    "authorizer": {
-      "handler": "remote_json",
-      "config": {
-        "remote": "http://keto:4466/relation-tuples/check",
-        "payload": "{\"subject_id\": \"{{ print .Subject }}\", \"relation\": \"submit\", \"namespace\": \"locations\", \"object\": \"{{ printIndex .MatchContext.RegexpCaptureGroups 0 }}\"}"
-      }
-    },
-    "mutators": [
-      {
-        "handler": "noop"
       }
     ]
   }

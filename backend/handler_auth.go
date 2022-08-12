@@ -3,113 +3,20 @@ package main
 import (
 	_ "embed"
 	"encoding/json"
-	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"github.com/ory/client-go"
 	"github.com/ory/herodot"
+	rts "github.com/ory/keto/proto/ory/keto/relation_tuples/v1alpha2"
 	"html/template"
-	"io"
-	"log"
 	"net/http"
 	"os"
 )
-
-type handler struct {
-	repo repository
-	jw   *herodot.JSONWriter
-	tw   *herodot.TextWriter
-	c    *client.APIClient
-}
-
-type logReporter struct{}
-
-func (logReporter) ReportError(r *http.Request, code int, err error, args ...interface{}) {
-	log.Printf("ERROR: %s\n  Request: %v\n  Response Code: %d\n  Further Info: %v\n", err, r, code, args)
-}
-
-func NewHandler(repo repository) http.Handler {
-	r := httprouter.New()
-	h := &handler{
-		repo: repo,
-		jw:   herodot.NewJSONWriter(logReporter{}),
-		tw:   herodot.NewTextWriter(logReporter{}, "html"),
-		c: client.NewAPIClient(&client.Configuration{
-			Servers: client.ServerConfigurations{{
-				URL: "http://kratos:4433",
-			}},
-		}),
-	}
-
-	r.GET("/results", h.getResults)
-	r.POST("/results/:district", h.submit)
-	r.GET("/login", requireFlow(h.login, "login"))
-	r.GET("/register", requireFlow(h.register, "registration"))
-	r.GET("/error", h.error)
-	r.GET("/", h.index)
-
-	return withAccessLog(r)
-}
-
-func withAccessLog(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("%s %s\n", r.Method, r.URL)
-		next.ServeHTTP(w, r)
-	})
-}
-
-func requireFlow(next httprouter.Handle, flow string) httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		if r.URL.Query().Has("flow") {
-			next(w, r, nil)
-			return
-		}
-		http.Redirect(w, r, fmt.Sprintf("/self-service/%s/browser", flow), http.StatusSeeOther)
-	}
-}
-
-func (h *handler) getResults(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	results, err := h.repo.List(r.Context())
-	if err != nil {
-		h.jw.WriteError(w, r, err)
-		return
-	}
-	b, _ := json.Marshal(results)
-	_, _ = w.Write(b)
-}
-
-func (h *handler) submit(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	if r.Body == nil {
-		h.jw.WriteError(w, r, herodot.ErrBadRequest.WithError("no body"))
-		return
-	}
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		h.jw.WriteError(w, r, herodot.ErrBadRequest.WithError(err.Error()))
-		return
-	}
-
-	res := &result{}
-	if err = json.Unmarshal(body, res); err != nil {
-		h.jw.WriteError(w, r, herodot.ErrBadRequest.WithError(err.Error()))
-		return
-	}
-
-	err = h.repo.Submit(r.Context(), params.ByName("district"), res)
-	if err != nil {
-		h.jw.WriteError(w, r, herodot.ErrBadRequest.WithError(err.Error()))
-		return
-	}
-	h.jw.WriteCreated(w, r, "/results/"+res.District, "")
-}
 
 //go:embed ui/login.html
 var loginPage string
 
 //go:embed ui/register.html
 var registerPage string
-
-//go:embed ui/index.html
-var indexPage string
 
 //go:embed ui/error.html
 var errorPage string
@@ -165,10 +72,6 @@ func (h *handler) error(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 	}
 }
 
-func (h *handler) index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	h.tw.Write(w, r, indexPage)
-}
-
 type flowData struct {
 	Action, CSRFToken, Messages, WebAuthNScript, Identifier string
 	WebAuthNCallback                                        template.JS
@@ -216,4 +119,42 @@ func getFlow[F interface {
 		data.Messages = "no messages right now"
 	}
 	return &data, nil
+}
+
+func (h *handler) grantAccess(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	sub, rel, nspace, obj := r.FormValue("subject"), r.FormValue("relation"), r.FormValue("namespace"), r.FormValue("object")
+
+	self, err := h.ketoCheck.Check(r.Context(), &rts.CheckRequest{
+		Tuple: &rts.RelationTuple{
+			Namespace: nspace,
+			Object:    obj,
+			Relation:  rel,
+			Subject:   rts.NewSubjectID(r.Header.Get("X-Username")),
+		},
+	})
+	if err != nil {
+		h.jw.WriteError(w, r, err)
+		return
+	}
+	if !self.Allowed {
+		h.jw.WriteError(w, r, herodot.ErrForbidden.WithError("You don't have the relation yourself, how could you grant it to someone else?"))
+		return
+	}
+
+	_, err = h.ketoWrite.TransactRelationTuples(r.Context(), &rts.TransactRelationTuplesRequest{
+		RelationTupleDeltas: []*rts.RelationTupleDelta{{
+			Action: rts.RelationTupleDelta_ACTION_INSERT,
+			RelationTuple: &rts.RelationTuple{
+				Namespace: nspace,
+				Object:    obj,
+				Relation:  rel,
+				Subject:   rts.NewSubjectID(sub),
+			},
+		}},
+	})
+	if err != nil {
+		h.jw.WriteError(w, r, err)
+		return
+	}
+	h.tw.Write(w, r, "Ok, done.")
 }

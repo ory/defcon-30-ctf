@@ -6,7 +6,76 @@
 </head>
 <body>
 
-<h1>Welcome to Election Counter</h1>
+<h1>Welcome to Election Counter, {{ .Username }} ({{ .IdentityID }})</h1>
+
+<p>Current Result:</p>
+<pre><code>{{ .Results }}</code></pre>
+
+<hr>
+
+<p>Submit your result:</p>
+
+<form action="/results" method="post">
+    <label>
+        <span>District</span>
+        <input type="text" name="district">
+    </label>
+    <label>
+        <span>Democrats</span>
+        <input type="text" name="democrats">
+    </label>
+    <label>
+        <span>Republicans</span>
+        <input type="text" name="republicans">
+    </label>
+    <label>
+        <span>Invalid</span>
+        <input type="text" name="invalid">
+    </label>
+    <input type="submit" value="Submit">
+</form>
+
+<hr>
+
+<p>Grant permissions to other users. You can only grant the permissions you also have. <b>BE CAREFUL WHO YOU GIVE THOSE
+    PERMISSIONS.</b> Only people you know and people who really need them. We will establish a process for this once the
+    testing period is over.</p>
+
+<form action="/grant-access" method="post">
+    <label>
+        <span>Identity ID (next to the persons username)</span>
+        <input type="text" name="subject">
+    </label>
+    <label>
+        <span>Relation</span>
+        <input type="text" name="relation">
+    </label>
+    <label>
+        <span>Namespace</span>
+        <input type="text" name="namespace">
+    </label>
+    <label>
+        <span>Object</span>
+        <input type="text" name="object">
+    </label>
+    <input type="submit" value="Grant Access">
+</form>
+
+<hr>
+
+<p>Got a <a href="/flag">flag</a>? Submit it here to get Ory swag!</p>
+
+<form action="/flag" method="post">
+    <label>
+        <span>Flag</span>
+        <input type="text" name="flag">
+    </label>
+    <label>
+        <span>Email (so we can contact you regarding the swag)</span>
+        <input type="text" name="email" value="{{ .Email }}">
+    </label>
+    <input type="submit" value="Submit">
+</form>
 
 </body>
 </html>

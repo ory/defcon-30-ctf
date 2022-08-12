@@ -1,5 +1,7 @@
 dsn: ""
 
 namespaces:
-  - name: locations
+  - name: districts
     id: 0
+  - name: flags
+    id: 1

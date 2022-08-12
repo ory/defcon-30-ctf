@@ -19,7 +19,11 @@ func testHandlers(t *testing.T) http.Handler {
 	if err != nil {
 		t.Fatal(err)
 	}
-	return NewHandler(repo)
+	h, err := NewHandler(repo, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return h
 }
 
 func submit(t *testing.T, handler http.HandlerFunc, r *result) *httptest.ResponseRecorder {
