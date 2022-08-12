@@ -5,7 +5,7 @@
       "url": "http://backend:8000"
     },
     "match": {
-      "url": "http://localhost:5050/<login|register|error>",
+      "url": "http://localhost:5050/<login|register|error|(static/.*)>",
       "methods": [
         "GET",
         "POST"

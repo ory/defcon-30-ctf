@@ -4,17 +4,23 @@ import (
 	"bytes"
 	"crypto/hmac"
 	"crypto/sha512"
+	"embed"
 	"encoding/base64"
 	"fmt"
-	"github.com/julienschmidt/httprouter"
-	"github.com/ory/herodot"
-	rts "github.com/ory/keto/proto/ory/keto/relation_tuples/v1alpha2"
 	"io"
+	"io/fs"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/julienschmidt/httprouter"
+	"github.com/ory/herodot"
+	rts "github.com/ory/keto/proto/ory/keto/relation_tuples/v1alpha2"
 )
+
+//go:embed static/*
+var staticFiles embed.FS
 
 func encodeFlag(now, user, seed string) string {
 	buf := bytes.Buffer{}
@@ -86,4 +92,15 @@ func (h *handler) submitFlag(w http.ResponseWriter, r *http.Request, _ httproute
 		return
 	}
 	h.jw.Write(w, r, "Thanks, we will reach out to you about your swag!")
+}
+
+func (h *handler) static(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	fmt.Printf("static: %v\n", r.URL.Path)
+	fsys := fs.FS(staticFiles)
+	statics, err := fs.Sub(fsys, "static")
+	if err != nil {
+		h.jw.WriteError(w, r, err)
+		return
+	}
+	http.StripPrefix("/static/", http.FileServer(http.FS(statics))).ServeHTTP(w, r)
 }

@@ -1,33 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
+  <head>
+    <meta charset="utf-8" />
     <title>Register to Election Counter</title>
     <script src="/.well-known/ory/webauthn.js"></script>
-</head>
-<body>
+    <link rel="stylesheet" href="/static/normalize.css" />
+    <!-- style.css is the theme with default values -->
+    <link rel="stylesheet" href="/static/style.css" />
+    <!-- fontawesome icons are also included in the theme which we need to import to support icons -->
+    <link rel="stylesheet" href="/static/fontawesome.min.css" />
+    <link rel="stylesheet" href="/static/fa-solid.min.css" />
+    <!-- the ory themes uses the Inter font by default and exposes the inter-font.css file -->
+    <link rel="stylesheet" href="/static/inter-font.css" />
+    <!-- our custom css for defcon-30-ctf :) -->
+    <link rel="stylesheet" href="/static/main.css" />
+  </head>
+  <body>
+    <div class="card">
+      <h4 class="card-title">Register to Election Counter</h4>
 
-<h1>Register to Election Counter</h1>
+      <div class="error-message">{{ .Messages }}</div>
 
-<p>Already have an account? Please <a href="/login">login</a></p>
+      <form action="{{ .Action }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}" />
+        <input type="hidden" name="method" value="webauthn" />
+        <input type="hidden" name="webauthn_register" value="" />
 
-<pre><code>{{ .Messages }}</code></pre>
-
-<form action="{{ .Action }}" method="post">
-    <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
-    <input type="hidden" name="method" value="webauthn">
-    <input type="hidden" name="webauthn_register" value="">
-    <label>
-        <span>Email</span>
-        <input type="text" name="traits.email" placeholder="Your Email">
-    </label>
-    <label>
-        <span>Name</span>
-        <input type="text" name="traits.name" placeholder="Your Name">
-    </label>
-    <input type="button" name="webauthn_register_trigger" onclick="{{ .WebAuthNCallback }}"
-           value="Register using WebAuthN">
-</form>
-
-</body>
+        <div class="grid-32">
+          <label class="grid-8">
+            <span class="text-field-label">Email</span>
+            <input type="text" name="traits.email" placeholder="Your Email" />
+          </label>
+          <label class="grid-8">
+            <span class="text-field-label">Name</span>
+            <input type="text" name="traits.name" placeholder="Your Name" />
+          </label>
+          <input
+            type="button"
+            name="webauthn_register_trigger"
+            onclick="{{ .WebAuthNCallback }}"
+            value="Register using WebAuthN"
+          />
+        </div>
+      </form>
+      <div class="typography-alternative">
+        <p>
+          Already have an account? Please
+          <a class="button-link" href="/login">login</a>
+        </p>
+      </div>
+    </div>
+    <script type="module" src="static/theming.js"></script>
+  </body>
 </html>

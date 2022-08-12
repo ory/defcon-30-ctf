@@ -3,14 +3,15 @@ package main
 import (
 	_ "embed"
 	"fmt"
+	"log"
+	"net/http"
+
 	"github.com/julienschmidt/httprouter"
 	"github.com/ory/client-go"
 	"github.com/ory/herodot"
 	rts "github.com/ory/keto/proto/ory/keto/relation_tuples/v1alpha2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"log"
-	"net/http"
 )
 
 type handler struct {
@@ -64,6 +65,7 @@ func NewHandler(repo *sqlRepo, config *Config) (http.Handler, error) {
 	r.POST("/grant-access", h.grantAccess)
 	r.GET("/flag", h.getFlag)
 	r.POST("/flag", h.submitFlag)
+	r.GET("/static/*filepath", h.static)
 
 	return withAccessLog(r), nil
 }

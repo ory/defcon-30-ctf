@@ -22,6 +22,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	server := graceful.WithDefaults(&http.Server{
 		Addr:    config.ListenAddress,
 		Handler: h,
