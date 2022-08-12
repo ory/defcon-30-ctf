@@ -11,6 +11,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 )
 
 type handler struct {
@@ -43,6 +44,7 @@ func NewHandler(repo repository) http.Handler {
 	r.POST("/results/:district", h.submit)
 	r.GET("/login", requireFlow(h.login, "login"))
 	r.GET("/register", requireFlow(h.register, "registration"))
+	r.GET("/error", h.error)
 	r.GET("/", h.index)
 
 	return withAccessLog(r)
@@ -101,13 +103,16 @@ func (h *handler) submit(w http.ResponseWriter, r *http.Request, params httprout
 }
 
 //go:embed ui/login.html
-var login []byte
+var loginPage string
 
 //go:embed ui/register.html
-var register []byte
+var registerPage string
 
 //go:embed ui/index.html
-var index []byte
+var indexPage string
+
+//go:embed ui/error.html
+var errorPage string
 
 func (h *handler) login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	flow, err := getFlow(r, h.c.V0alpha2Api.GetSelfServiceLoginFlowExecute)
@@ -115,7 +120,7 @@ func (h *handler) login(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 		h.jw.WriteError(w, r, err)
 		return
 	}
-	t, err := template.New("login").Parse(string(login))
+	t, err := template.New("login").Parse(loginPage)
 	if err != nil {
 		h.jw.WriteError(w, r, err)
 		return
@@ -132,7 +137,7 @@ func (h *handler) register(w http.ResponseWriter, r *http.Request, _ httprouter.
 		h.jw.WriteError(w, r, err)
 		return
 	}
-	t, err := template.New("register").Parse(string(register))
+	t, err := template.New("register").Parse(registerPage)
 	if err != nil {
 		h.jw.WriteError(w, r, err)
 		return
@@ -143,14 +148,30 @@ func (h *handler) register(w http.ResponseWriter, r *http.Request, _ httprouter.
 	}
 }
 
+func (h *handler) error(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	e, _, err := h.c.V0alpha2Api.GetSelfServiceErrorExecute(client.V0alpha2ApiGetSelfServiceErrorRequest{}.Id(r.URL.Query().Get("id")))
+	if err != nil {
+		h.jw.WriteError(w, r, err)
+		return
+	}
+	t, err := template.New("error").Parse(errorPage)
+	if err != nil {
+		h.jw.WriteError(w, r, err)
+		return
+	}
+	if err := t.Execute(w, struct{ Error *client.SelfServiceError }{Error: e}); err != nil {
+		h.jw.WriteError(w, r, err)
+		return
+	}
+}
+
 func (h *handler) index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	h.tw.Write(w, r, index)
+	h.tw.Write(w, r, indexPage)
 }
 
 type flowData struct {
-	Action    string
-	CSRFToken string
-	Messages  string
+	Action, CSRFToken, Messages, WebAuthNScript, Identifier string
+	WebAuthNCallback                                        template.JS
 }
 
 func getFlow[F interface {
@@ -167,13 +188,22 @@ func getFlow[F interface {
 	if err != nil {
 		return nil, err
 	}
+	enc := json.NewEncoder(os.Stdout)
+	enc.SetIndent("", "  ")
+	enc.Encode(flow.GetUi())
 	data := flowData{
 		Action: flow.GetUi().Action,
 	}
 	msg := flow.GetUi().Messages
 	for _, node := range flow.GetUi().Nodes {
-		if attrs := node.Attributes.UiNodeInputAttributes; attrs != nil && attrs.Name == "csrf_token" {
-			data.CSRFToken = attrs.Value.(string)
+		if attrs := node.Attributes.UiNodeInputAttributes; attrs != nil {
+			if attrs.Name == "csrf_token" {
+				data.CSRFToken = attrs.Value.(string)
+			} else if attrs.Name == "webauthn_register_trigger" || attrs.Name == "webauthn_login_trigger" {
+				data.WebAuthNCallback = template.JS(*attrs.Onclick)
+			} else if attrs.Name == "identifier" {
+				data.Identifier = attrs.Value.(string)
+			}
 		}
 		msg = append(msg, node.Messages...)
 	}

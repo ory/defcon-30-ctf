@@ -18,7 +18,7 @@ services:
   kratos:
     image: oryd/kratos:v0.10.1
     entrypoint: sh -c
-    command: '"kratos migrate sql up -y -e && kratos serve -c /home/ory/kratos.yml --sqa-opt-out"'
+    command: '"kratos migrate sql up -y -e && kratos serve -c /home/ory/kratos.yml --sqa-opt-out --dev"'
     restart: on-failure
     links:
       - pg:pg

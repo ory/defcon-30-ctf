@@ -9,14 +9,27 @@ serve:
 selfservice:
   default_browser_return_url: '/'
   flows:
+    error:
+      ui_url: http://localhost:5050/error
     login:
       ui_url: http://localhost:5050/login
     registration:
         ui_url: http://localhost:5050/register
         after:
-          password:
+          webauthn:
             hooks:
               - hook: session
+  methods:
+    password:
+      enabled: false
+    webauthn:
+      enabled: true
+      config:
+        passwordless: true
+        rp:
+          display_name: Ory DEF CON CTF
+          id: localhost
+          origin: http://localhost:5050
 
 courier:
   smtp:

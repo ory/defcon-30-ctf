@@ -1,7 +1,9 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <title>Login to Election Counter</title>
+    <script src="/.well-known/ory/webauthn.js"></script>
 </head>
 <body>
 
@@ -11,16 +13,14 @@
 
 <form action="{{ .Action }}" method="post">
     <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
-    <input type="hidden" name="method" value="password">
+    <input type="hidden" name="method" value="webauthn">
+    <input type="hidden" name="webauthn_login" value="">
     <label>
         <span>Email</span>
-        <input type="text" name="identifier" placeholder="Email">
+        <input type="text" name="identifier" placeholder="Email" value="{{ .Identifier }}">
     </label>
-    <label>
-        <span>Password</span>
-        <input type="password" name="password">
-    </label>
-    <button type="submit">Log In</button>
+    <input type="button" name="webauthn_login_trigger" onclick="{{ .WebAuthNCallback }}" value="Continue">
+    <button type="submit">Login with Web AuthN</button>
 </form>
 
 </body>

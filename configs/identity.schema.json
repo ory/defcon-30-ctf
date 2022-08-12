@@ -10,7 +10,7 @@
           "title": "Email",
           "ory.sh/kratos": {
             "credentials": {
-              "password": {
+              "webauthn": {
                 "identifier": true
               }
             }
