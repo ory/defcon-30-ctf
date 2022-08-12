@@ -32,12 +32,7 @@
                 name="identifier"
                 placeholder="Email"
                 value="{{ .Identifier }}"
-                {{
-                if
-                .Identifier
-                }}readonly{{
-                end
-                }}
+                {{ if .Identifier }}readonly{{ end }}
               />
             </label>
             {{ if .WebAuthNCallback }}

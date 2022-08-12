@@ -1,8 +1,10 @@
 package main
 
 import (
+	"embed"
 	_ "embed"
 	"fmt"
+	"io/fs"
 	"log"
 	"net/http"
 
@@ -66,6 +68,7 @@ func NewHandler(repo *sqlRepo, config *Config) (http.Handler, error) {
 	r.GET("/flag", h.getFlag)
 	r.POST("/flag", h.submitFlag)
 	r.GET("/static/*filepath", h.static)
+	r.GET("/leaderboard", h.leaderboard)
 
 	return withAccessLog(r), nil
 }
@@ -85,4 +88,16 @@ func requireFlow(next httprouter.Handle, flow string) httprouter.Handle {
 		}
 		http.Redirect(w, r, fmt.Sprintf("/self-service/%s/browser", flow), http.StatusSeeOther)
 	}
+}
+
+//go:embed static/*
+var staticFiles embed.FS
+
+func (h *handler) static(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	statics, err := fs.Sub(staticFiles, "static")
+	if err != nil {
+		h.jw.WriteError(w, r, err)
+		return
+	}
+	http.StripPrefix("/static/", http.FileServer(http.FS(statics))).ServeHTTP(w, r)
 }

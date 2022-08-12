@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"crypto/hmac"
 	"crypto/sha512"
-	"embed"
+	_ "embed"
 	"encoding/base64"
 	"fmt"
+	"html/template"
 	"io"
-	"io/fs"
 	"net/http"
 	"strconv"
 	"strings"
@@ -18,9 +18,6 @@ import (
 	"github.com/ory/herodot"
 	rts "github.com/ory/keto/proto/ory/keto/relation_tuples/v1alpha2"
 )
-
-//go:embed static/*
-var staticFiles embed.FS
 
 func encodeFlag(now, user, seed string) string {
 	buf := bytes.Buffer{}
@@ -94,12 +91,35 @@ func (h *handler) submitFlag(w http.ResponseWriter, r *http.Request, _ httproute
 	h.jw.Write(w, r, "Thanks, we will reach out to you about your swag!")
 }
 
-func (h *handler) static(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	fsys := fs.FS(staticFiles)
-	statics, err := fs.Sub(fsys, "static")
+//go:embed ui/leaderboard.html
+var leaderboardPage string
+
+type leaderboardData struct {
+	Submissions []*flagSubmission
+	Total       int
+}
+
+func (h *handler) leaderboard(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	submissions, err := h.repo.ListFlags(r.Context())
 	if err != nil {
 		h.jw.WriteError(w, r, err)
 		return
 	}
-	http.StripPrefix("/static/", http.FileServer(http.FS(statics))).ServeHTTP(w, r)
+	total, err := h.repo.TotalFlags(r.Context())
+	if err != nil {
+		h.jw.WriteError(w, r, err)
+		return
+	}
+	t, err := template.New("leaderboard").Parse(leaderboardPage)
+	if err != nil {
+		h.jw.WriteError(w, r, err)
+		return
+	}
+	if err := t.Execute(w, &leaderboardData{
+		Submissions: submissions,
+		Total:       total,
+	}); err != nil {
+		h.jw.WriteError(w, r, err)
+		return
+	}
 }
