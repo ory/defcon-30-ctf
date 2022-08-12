@@ -89,7 +89,7 @@ var vegasTime = time.FixedZone("PDT", -7*60*60)
 
 func (repo *sqlRepo) ListFlags(ctx context.Context) (res []*flagSubmission, err error) {
 	res = make([]*flagSubmission, 0)
-	row, err := repo.db.QueryContext(ctx, `SELECT "when", "user" FROM flags ORDER BY "when" DESC LIMIT 100`)
+	row, err := repo.db.QueryContext(ctx, `SELECT "when", "user" FROM flags ORDER BY "when" ASC LIMIT 100`)
 	if err != nil {
 		return res, err
 	}
