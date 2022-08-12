@@ -117,7 +117,7 @@ func getFlow[F interface {
 	}
 	data.Messages = string(msgRaw)
 	if len(msg) == 0 {
-		data.Messages = "no messages right now"
+		data.Messages = "no error messages right now"
 	}
 	return &data, nil
 }

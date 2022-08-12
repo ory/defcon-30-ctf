@@ -3,8 +3,6 @@
   <head>
     <meta charset="utf-8" />
     <title>Error</title>
-    <!-- require our theming script -->
-    <script type="module" src="/static/index.umd.js"></script>
     <link rel="stylesheet" href="/static/normalize.css" />
     <!-- style.css is the theme with default values -->
     <link rel="stylesheet" href="/static/style.css" />
@@ -18,8 +16,12 @@
   </head>
 
   <body>
-    <h1>An Error Occurred</h1>
-
-    <pre><code>{{ .Error }}</code></pre>
+    <div class="card">
+      <div class="grid-32">
+        <h4 class="card-title">An Error Occurred</h4>
+        <div class="error-message">{{ .Error }}</div>
+      </div>
+    </div>
+    <script type="module" src="static/theming.js"></script>
   </body>
 </html>
