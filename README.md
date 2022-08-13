@@ -8,6 +8,8 @@ Head over to the [remote challenge](https://defcon.getory.io/) to get started:
 https://defcon.getory.io/
 ```
 
+> Stuck or need hints? Ask us!
+
 ## Targets
 
 This challenge runs five services. They mock a basic election system used by **authenticated** users (election workers) to submit their voting districts results. This is not a service for voters. However, everyone can sign up and see the already submitted results.
