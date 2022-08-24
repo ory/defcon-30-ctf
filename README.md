@@ -1,14 +1,10 @@
 # Capture The Flag // Voting Village // Def Con 30
 
-Welcome to the github.com/ory CTF at DEF CON 30! Explore a vulnerable, open-source digital election system and capture the flag to win a surprise!
+Welcome to the github.com/ory CTF at DEF CON 30! Explore a vulnerable, open-source digital election system and capture the flag!
 
-Head over to the [remote challenge](https://defcon.getory.io/) to get started:
+Join the [community slack](https://slack.ory.sh) or have a look at the video summary:
 
-```
-https://defcon.getory.io/
-```
-
-> Stuck or need hints? Ask us!
+[![Ory Capture The Flag Interactive Summary](https://img.youtube.com/vi/Mx8LNRndsO8/0.jpg)](https://www.youtube.com/watch?v=Mx8LNRndsO8 "Ory Capture The Flag Interactive Summary")
 
 ## Targets
 
@@ -24,8 +20,20 @@ The services are all open source:
 
 The target of this CTF is the **backend** service. Vulnerabilities found in the open source **Ory Oathkeeper**, **Ory Kratos**, and **Ory Keto** projects can be reported through our [bug bounty program](https://hackerone.com/ory_corp) and give you bounties between 100$ (low) and 3,000$ (critical). On top, we will add another 100$ for any submission done during DEF CON 30 after you talked to us personally at the Voting Machine village.
 
-## Out of Scope
+## Running Locally
 
-We kindly ask you **not to do** denial of service or brute-force attacks against our remote services. Doing so will ruin the fun for everyone.
+Open source also means you can investigate the services locally.
 
-For more details head over to the [extended README](README.extended.md).
+You'll need to have Docker installed and this repository checked out to start the challenge:
+
+```bash
+$ git clone https://github.com/ory/defcon-30-ctf.git
+$ cd defcon-30-ctf
+$ docker compose up -d --build --force-recreate
+```
+
+Once the services are running, you are able to access them at:
+
+```
+http://localhost:5050
+```
